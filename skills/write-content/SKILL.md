@@ -47,7 +47,7 @@ Determine **content type**, **source**, and **mode** from `$ARGUMENTS`:
 
 Config is pre-loaded at session start by the SessionStart hook. Use these config values throughout all phases:
 
-- `author`, `content_types`, `content_strategy`, `content_pillars_path`, `backlog_file`, `translation_tracker_file`, `reference_content`, `languages`, `default_language`, `source_hierarchy`, `research_cache_ttl_days`
+- `author`, `content_types`, `content_strategy`, `content_pillars_path`, `backlog_file`, `translation_tracker_file`, `reference_content`, `languages`, `default_language`, `source_hierarchy`, `research_cache_ttl_days`, `image_generation`
 
 **Also read (always):**
 
@@ -171,7 +171,43 @@ Return the list of file paths created.
 
 **For backlog items:** Also include the pillar context and any objectives from the matching pillar file. Include articles created earlier in this batch as potential `relatedArticles`.
 
-**Store the created file path(s)** — they are passed as input to Phase 6 and beyond.
+**Store the created file path(s)** — they are passed as input to Phase 5.5 and beyond.
+
+---
+
+## Phase 5.5: Image Generation
+
+**Skip this phase entirely if any of the following are true:**
+
+- `image_generation.enabled` is not `true` in config (or the `image_generation` section is absent)
+- The content type is in `image_generation.skip_types` (e.g., `glossary`)
+
+The `image-generator` agent will handle per-article word count and API key checks internally and report if skipped.
+
+**For articles**, spawn the `image-generator` agent via the Task tool:
+
+```text
+Use the image-generator agent.
+
+Article path: [file path from Phase 5]
+Article slug: [slug from Phase 5]
+Content type: article
+Image output path: [image_generation.output_path from config]/articles/[slug]/
+Image guidelines: [image_generation.guidelines from config]
+Hero dimensions: [image_generation.hero_dimensions from config, e.g. 1200x630]
+Inline dimensions: [image_generation.inline_dimensions from config, e.g. 800x450]
+Placement mode: [image_generation.placement from config]
+```
+
+After the agent returns:
+
+1. If the agent reported "skipped" or an error: note it and continue to Phase 6 without inserting images.
+2. If images were generated:
+   - Insert the hero image markdown after the closing `---` of the frontmatter, before the first paragraph
+   - Insert each inline image markdown before its target `## Heading` as specified in the agent's output
+   - Store the list of created image file paths — they are added to the git commit in Phase 9
+
+**For glossary entries:** Skip this phase.
 
 ---
 
@@ -262,7 +298,7 @@ Review the report. If there are warnings about broken references, fix them befor
    - Write `.content-ops/content-index.json` with the structured metadata
    - (Or invoke the reindex skill if available)
 
-2. **Stage all created and modified files** (including the updated `content-index.json`)
+2. **Stage all created and modified files** (including the updated `content-index.json` and any image files from Phase 5.5)
 
 3. **Commit**:
 
@@ -272,6 +308,7 @@ Review the report. If there are warnings about broken references, fix them befor
 content: add article "<title>"
 
 - New article: [article path]
+- Images: [N images at public/images/articles/{slug}/, or "none"]
 - New glossary: [list any created in Phase 7, or "none"]
 - Updated: [list any modified existing files from Phase 8]
 

@@ -72,6 +72,7 @@ You receive from the orchestrator:
 ## Rules
 
 - Write **only** the content file(s). Do not modify any other files.
+- Do not add image placeholders or `![]()` references — the image-generator agent handles images in Phase 5.5, after this phase completes.
 - Do not add links to other content — the content-linker agent handles that in a later phase.
 - Do not create glossary entries for terms mentioned in the article — the glossary-creator agent handles that.
 - Follow the style guide exactly: sentence length, paragraph density, tone, structure.

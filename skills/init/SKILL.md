@@ -1,7 +1,7 @@
 ---
 name: init
-description: content-ops setup wizard. Run /init to see status, or /init [round] to run a setup step. Rounds: project, content-types, style, strategy, infra.
-argument-hint: "[project|content-types|style|strategy|infra]"
+description: content-ops setup wizard. Run /init to see status, or /init [round] to run a setup step. Rounds: project, content-types, style, strategy, infra, images.
+argument-hint: "[project|content-types|style|strategy|infra|images]"
 user-invocable: true
 allowed-tools: Read, Write, Edit, Glob, Grep, Bash, AskUserQuestion
 ---
@@ -22,7 +22,8 @@ Parse $ARGUMENTS:
 - **`style`** → Read `skills/init/rounds/style.md` (relative to plugin root) and follow its instructions completely
 - **`strategy`** → Read `skills/init/rounds/strategy.md` (relative to plugin root) and follow its instructions completely
 - **`infra`** → Read `skills/init/rounds/infra.md` (relative to plugin root) and follow its instructions completely
-- **Unknown argument** → Tell the user the valid options: `project`, `content-types`, `style`, `strategy`, `infra`
+- **`images`** → Read `skills/init/rounds/images.md` (relative to plugin root) and follow its instructions completely
+- **Unknown argument** → Tell the user the valid options: `project`, `content-types`, `style`, `strategy`, `infra`, `images`
 
 After completing any round, always end with a short "What's next?" line pointing to the next incomplete round.
 
@@ -46,6 +47,7 @@ Try to read `.content-ops/config.md` → parse YAML frontmatter.
 | style | `reference_content` has at least one entry AND at least one `guidelines` path in `content_types` resolves to an existing file |
 | strategy | `content_strategy` is set AND that file exists on disk |
 | infra | the `backlog_file` path exists AND the `translation_tracker_file` path exists |
+| images | `image_generation` section exists in config AND `image_generation.guidelines` file exists on disk |
 
 If `.content-ops/config.md` does not exist: all rounds are incomplete.
 
@@ -64,6 +66,7 @@ Config: .content-ops/config.md ([found | not found])
 ⬜ /init style          — not started
 ⬜ /init strategy       — not started
 ⬜ /init infra          — not started
+⬜ /init images         — not started
 
 → Next: /init [first incomplete round]
 
@@ -73,4 +76,5 @@ What each step does:
   style          — Build your voice, tone, and style guide
   strategy       — Define content pillars and editorial plan
   infra          — Set up trackers, localization guides, and file-based content index (via /reindex)
+  images         — Configure image generation: style, color palette, placement rules
 ```
