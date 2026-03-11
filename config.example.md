@@ -73,11 +73,13 @@ research_cache_ttl_days: 30
 # image_generation:
 #   enabled: true
 #   provider: "google-gemini"        # google-gemini | openai-gpt-image | manual
+#   model: ""                        # optional — omit for provider default (imagen-3.0-generate-002 / gpt-image-1)
 #   guidelines: "docs/image-style-guide.md"
 #   output_path: "public/images"
 #   hero_dimensions: [1200, 630]
 #   inline_dimensions: [800, 450]
 #   placement: "ai-driven"           # ai-driven | hero-plus-sections | hero-only
+#   max_inline_images: 3             # optional — max inline images per article (omit for no cap)
 #   min_word_count: 300              # skip image generation for articles below this word count
 #   skip_types: ["glossary"]         # content types that never get images
 ---
@@ -110,11 +112,13 @@ Copy this file to `.content-ops/config.md` and customize the YAML frontmatter fo
 | `linking_max_links` | number | Max links per article (default 10) |
 | `image_generation.enabled` | boolean | Whether to generate images during `/write-content` |
 | `image_generation.provider` | string | API provider: `google-gemini`, `openai-gpt-image`, or `manual` |
+| `image_generation.model` | string | Model override (optional — omit for provider default) |
 | `image_generation.guidelines` | string | Path to image style guide (created by `/init images`) |
 | `image_generation.output_path` | string | Root folder for generated images (default `public/images`) |
 | `image_generation.hero_dimensions` | number[] | Hero image size `[width, height]` (default `[1200, 630]`) |
 | `image_generation.inline_dimensions` | number[] | Inline image size `[width, height]` (default `[800, 450]`) |
 | `image_generation.placement` | string | `ai-driven`, `hero-plus-sections`, or `hero-only` |
+| `image_generation.max_inline_images` | number | Max inline images per article (optional — omit for no cap) |
 | `image_generation.min_word_count` | number | Skip images for articles shorter than this (default 300) |
 | `image_generation.skip_types` | string[] | Content types that never get images (default `["glossary"]`) |
 

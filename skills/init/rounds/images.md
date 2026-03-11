@@ -6,38 +6,30 @@ Goal: Configure image generation for articles — visual style, color palette, p
 
 ## Phase 1: Check existing state
 
-Read `.content-ops/config.md`. Check if an `image_generation` section exists.
+Read `.content-ops/config.md`. Parse the YAML frontmatter.
 
-Also check if `docs/image-style-guide.md` exists on disk.
+Check if an `image_generation` section exists in config. If it does, check if the file at `image_generation.guidelines` exists on disk.
 
-**If both already exist:**
+**If both the config section and guidelines file already exist:**
 
-Read the image style guide. Summarize it in 3–5 bullets:
+Read the guidelines file. Summarize it in 3–5 bullets (provider, style, palette, placement, skip conditions).
 
-- Provider
-- Visual style
-- Color palette (if set)
-- Placement rule
-- Any skip conditions
+Use `AskUserQuestion` to ask:
 
-Ask:
-
-```text
-I found an existing image style guide at docs/image-style-guide.md:
-
-  • [bullet 1]
-  • [bullet 2]
-  • [bullet 3]
-
-Want to:
-  A — Keep it as-is (skip this round)
-  B — Update specific sections
-  C — Replace it entirely
+```
+question: "I found an existing image style guide at [path from config]. [summary bullets]. What would you like to do?"
+options:
+  - label: "Keep as-is"
+    description: "Skip this round — current settings are fine"
+  - label: "Update sections"
+    description: "Change specific parts while keeping the rest"
+  - label: "Replace entirely"
+    description: "Start fresh with a new image style guide"
 ```
 
-- If **A**: stop and guide to the next incomplete round.
-- If **B**: ask which sections to update; run only the relevant questions from Phase 2.
-- If **C**: continue to Phase 2.
+- If **Keep as-is**: stop and guide to the next incomplete round.
+- If **Update sections**: use a follow-up `AskUserQuestion` to ask which sections to update (multiSelect). Then run only the relevant questions from Phase 2 for those sections.
+- If **Replace entirely**: continue to Phase 2.
 
 **If not yet configured:** continue to Phase 2.
 
@@ -45,72 +37,156 @@ Want to:
 
 ## Phase 2: Image style interview
 
-Ask all questions in a **single AskUserQuestion call** with multiple questions.
+Ask questions **one at a time** using `AskUserQuestion`. Wait for each answer before asking the next. Each answer shapes subsequent questions — skip anything already implied.
 
-### Q1: Provider
+### Question 1: Provider
 
-```text
-Which image generation provider should the plugin use?
-  A — Google Gemini / Nano Banana (Recommended — single SDK for text+image, $0.04/image, supports brand style reference)
-  B — OpenAI GPT Image (highest quality benchmarks, $0.04/image)
-  C — I'll configure it manually — skip this question
+```
+question: "Which image generation provider should the plugin use?"
+header: "Provider"
+options:
+  - label: "Google Gemini / Nano Banana (Recommended)"
+    description: "Single SDK for text+image, ~$0.04/image, supports brand style reference via reference images"
+  - label: "OpenAI GPT Image"
+    description: "Highest quality benchmarks, ~$0.04/image, widely used API"
+  - label: "I'll configure it manually"
+    description: "Skip — I'll set the API details in config myself"
 ```
 
-Store answer. If C, note `provider: manual` — the user will set the API details themselves in config.
+Store the answer. If manual: note `provider: manual`.
 
-### Q2: Visual style
+**Follow-up (if Google Gemini or OpenAI):** Ask whether they want to use a specific model or the default.
 
-```text
-What visual style should generated images follow?
-
-  A — Flat illustration (clean shapes, modern, great for tech and product blogs)
-  B — Photorealistic (realistic, stock-photo-like scenes)
-  C — Minimalist diagram (clean lines, technical clarity, neutral tones)
-  D — Watercolor / editorial (soft, artistic, magazine feel)
-  E — Describe your own style
+```
+question: "Which model should we use? Leave as default unless you have a preference."
+header: "Model"
+options:
+  - label: "Default (Recommended)"
+    description: "imagen-3.0-generate-002 for Gemini, gpt-image-1 for OpenAI"
+  - label: "Specify a model"
+    description: "I want to use a specific model version"
 ```
 
-If E: capture their description verbatim — it becomes the style prompt modifier.
+If they pick "Specify a model", the "Other" free-text option lets them type it.
 
-### Q3: Color palette
+### Question 2: Visual style
 
-```text
-Should generated images follow a brand color palette?
-
-  A — Yes — I'll provide hex codes
-  B — No specific palette — let the AI choose colors based on content
+```
+question: "What visual style should generated images follow?"
+header: "Style"
+options:
+  - label: "Flat illustration"
+    description: "Clean shapes, modern, bold outlines — great for tech and product blogs"
+  - label: "Photorealistic"
+    description: "Realistic, stock-photo-like scenes and people"
+  - label: "Minimalist diagram"
+    description: "Clean lines, technical clarity, neutral tones — best for docs and tutorials"
+  - label: "Watercolor / editorial"
+    description: "Soft, artistic, magazine feel — best for lifestyle and narrative content"
 ```
 
-If A: follow up immediately: "Please enter 2–4 hex codes (e.g. #1A1A2E, #E94560). Label them if you like (primary, accent, etc.)."
+The "Other" free-text option lets users describe a custom style. Capture their description verbatim — it becomes the style prompt modifier.
 
-### Q4: Placement
+### Question 3: Color palette
 
-```text
-When should images be added to an article?
-
-  A — AI decides based on content structure (Recommended — natural, context-aware placement)
-  B — Hero image + one image per H2 section (comprehensive)
-  C — Hero image only (minimal)
+```
+question: "Should generated images follow a brand color palette?"
+header: "Colors"
+options:
+  - label: "Yes — I'll provide hex codes"
+    description: "Consistent brand colors across all generated images"
+  - label: "No specific palette"
+    description: "Let the AI choose colors based on content context"
 ```
 
-Also ask: "What is the minimum article word count before images are generated? (e.g. 300 — skip images for very short articles)"
+If **Yes**: use a follow-up `AskUserQuestion`:
 
-### Q5: Skip conditions
-
-```text
-When should image generation be skipped? (select all that apply)
-
-  A — Glossary entries (usually too short)
-  B — Articles under the minimum word count you set
-  C — Translation runs (images already exist from the original language)
-  D — Any other conditions? (describe below)
 ```
+question: "Enter 2–4 hex codes for your brand palette. Label them if you like (e.g., '#1A1A2E primary, #E94560 accent')."
+header: "Hex codes"
+options:
+  - label: "Enter colors"
+    description: "Type your hex codes in the 'Other' field below"
+```
+
+The user will type their colors via the Other/free-text input.
+
+### Question 4: Placement and density
+
+```
+question: "When should images be added to an article?"
+header: "Placement"
+options:
+  - label: "AI decides based on content (Recommended)"
+    description: "Context-aware — adds images where they enhance understanding, skips where they don't"
+  - label: "Hero + one per H2 section"
+    description: "Comprehensive coverage — every article section gets an image"
+  - label: "Hero image only"
+    description: "Minimal — one image at the top of each article"
+```
+
+**Follow-up:** Ask about the maximum inline image cap and minimum word count.
+
+```
+question: "How many inline images (besides the hero) should an article have at most?"
+header: "Image cap"
+options:
+  - label: "No hard cap — let the AI decide"
+    description: "Placement based purely on content analysis"
+  - label: "Max 2 inline images"
+    description: "Hero + up to 2 section images"
+  - label: "Max 3 inline images"
+    description: "Hero + up to 3 section images"
+```
+
+Then:
+
+```
+question: "What is the minimum article word count before images are generated?"
+header: "Min words"
+options:
+  - label: "300 words (Recommended)"
+    description: "Skip images for very short articles"
+  - label: "500 words"
+    description: "Only generate images for substantial articles"
+  - label: "No minimum"
+    description: "Generate images for all articles regardless of length"
+```
+
+### Question 5: Skip conditions
+
+```
+question: "When should image generation be skipped?"
+header: "Skip rules"
+multiSelect: true
+options:
+  - label: "Glossary entries"
+    description: "Usually too short for images"
+  - label: "Translation runs"
+    description: "Images already exist from the original language"
+  - label: "No skip conditions"
+    description: "Generate images for everything"
+```
+
+### Question 6: Output settings
+
+```
+question: "Where should generated images be saved?"
+header: "Output path"
+options:
+  - label: "public/images (Recommended)"
+    description: "Standard static asset location for most frameworks"
+  - label: "Custom path"
+    description: "I'll specify a different directory"
+```
+
+If **Custom path**: the user types their path via the Other/free-text input.
 
 ---
 
 ## Phase 3: Create image style guide
 
-Using the answers from Phase 2, create `docs/image-style-guide.md`.
+Using the answers from Phase 2, create the image style guide at the path that will be set in config (default `docs/image-style-guide.md`).
 
 The guide must be **actionable** — it is read verbatim by the `image-generator` agent to build image prompts and make placement decisions.
 
@@ -118,10 +194,11 @@ Include these sections:
 
 ### Provider
 
-Which API to use and any relevant notes.
+Which API to use and the model.
 
 ```text
 Provider: [google-gemini | openai-gpt-image | manual]
+Model: [model name or "default"]
 API key environment variable: [GEMINI_API_KEY | OPENAI_API_KEY | as specified]
 ```
 
@@ -147,33 +224,33 @@ If no palette: "Let the API choose colors based on content context. Prefer clean
 
 ```text
 Mode: [ai-driven | hero-plus-sections | hero-only]
-Minimum word count: [N] — skip image generation for articles below this threshold
+Minimum word count: [N]
+Max inline images: [N or "no cap"]
 ```
 
 If mode is `ai-driven`, add guidance for the agent:
 - Add a hero image for every article that passes the word count threshold
 - Add a section image when a concept is abstract, visual, or benefits from illustration
 - Skip section images when the content is already concrete (e.g., code examples, numbered steps, short factual sections)
-- Prefer fewer, higher-quality images over one per section by default
 
 ### Skip Conditions
 
 List the conditions under which the `image-generator` agent should do nothing:
 
-- `content_type: glossary` — always skip
-- `word_count < [N]` — skip if article is too short
-- `is_translation: true` — skip if this is a translation run
+- Content types to skip (e.g., glossary)
+- Word count threshold
+- Translation runs (if selected)
 - Any user-specified additional conditions
 
 ### Output Settings
 
 ```text
-Hero image dimensions: 1200 × 630 px
-Inline image dimensions: 800 × 450 px
+Hero image dimensions: [W] × [H] px
+Inline image dimensions: [W] × [H] px
 Output format: webp (fallback: png)
-Output path pattern: public/images/articles/{slug}/
+Output path: [user-chosen path]/articles/{slug}/
 Hero filename: hero.webp
-Inline filename: section-{n}.webp
+Inline filename: {section-heading-slug}.webp
 ```
 
 ### Alt Text Convention
@@ -197,18 +274,20 @@ no text overlays, no watermarks, professional quality, suitable for a blog artic
 
 ## Phase 4: Update config
 
-Update `.content-ops/config.md` — add or update the `image_generation` block:
+Update `.content-ops/config.md` — add or update the `image_generation` block in the YAML frontmatter:
 
 ```yaml
 # Image generation
 image_generation:
   enabled: true
   provider: "[google-gemini | openai-gpt-image | manual]"
-  guidelines: "docs/image-style-guide.md"
-  output_path: "public/images"
+  model: "[model or omit for default]"
+  guidelines: "[path to image style guide]"
+  output_path: "[user-chosen output path]"
   hero_dimensions: [1200, 630]
   inline_dimensions: [800, 450]
   placement: "[ai-driven | hero-plus-sections | hero-only]"
+  max_inline_images: [N or omit for no cap]
   min_word_count: [N]
   skip_types: ["glossary"]
 ```
@@ -220,14 +299,15 @@ Preserve all other existing config fields.
 ## Phase 5: Confirm and guide
 
 ```text
-✅ Image style guide created at docs/image-style-guide.md
+✅ Image style guide created at [guidelines path]
 
 Settings:
-  • Provider: [provider]
+  • Provider: [provider] ([model])
   • Style: [style name]
   • Placement: [placement mode]
+  • Max inline images: [N or "no cap"]
   • Min word count: [N]
-  • Output: public/images/articles/{slug}/
+  • Output: [output_path]/articles/{slug}/
 
 Config updated with image_generation settings.
 

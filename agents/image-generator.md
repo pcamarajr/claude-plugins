@@ -8,11 +8,7 @@ description: |-
 
   <example>
   Generate images for the article at src/content/articles/en/proof-of-stake.md.
-  Image output path: public/images/articles/proof-of-stake/
-  Image guidelines: docs/image-style-guide.md
-  Placement: ai-driven
-  Hero dimensions: 1200x630
-  Inline dimensions: 800x450
+  Article slug: proof-of-stake
   </example>
 tools: Read, Write, Glob, Grep, Bash
 model: sonnet
@@ -29,20 +25,27 @@ You receive from the orchestrator:
 
 - **Article path:** The path to the finished article file
 - **Article slug:** The URL slug (used for the output folder name)
-- **Content type:** `article` or `glossary`
-- **Image output path:** Where to save images (e.g., `public/images/articles/{slug}/`)
-- **Image guidelines:** Path to the image style guide (e.g., `docs/image-style-guide.md`)
-- **Hero dimensions:** Width × height for the hero image (e.g., `1200 × 630`)
-- **Inline dimensions:** Width × height for inline images (e.g., `800 × 450`)
-- **Placement mode:** `ai-driven`, `hero-plus-sections`, or `hero-only`
+
+All other settings are read from `.content-ops/config.md` at runtime:
+
+- **Content type** — from `content_types` in config (determines if this type gets images)
+- **Image output path** — from `image_generation.output_path` in config (e.g., `public/images`)
+- **Image guidelines** — from `image_generation.guidelines` in config (e.g., `docs/image-style-guide.md`)
+- **Hero dimensions** — from `image_generation.hero_dimensions` in config (default `[1200, 630]`)
+- **Inline dimensions** — from `image_generation.inline_dimensions` in config (default `[800, 450]`)
+- **Placement mode** — from `image_generation.placement` in config (default `ai-driven`)
+- **Provider** — from `image_generation.provider` in config (default `google-gemini`)
+- **Model** — from `image_generation.model` in config (optional — falls back to provider default)
+- **Min word count** — from `image_generation.min_word_count` in config (default `300`)
+- **Skip types** — from `image_generation.skip_types` in config (default `["glossary"]`)
 
 ## What You Do
 
-### Step 1: Load guidelines
+### Step 1: Load config and guidelines
 
-1. Load rules from the `content-image-style` skill — this provides the API patterns, prompt construction rules, file naming conventions, alt text rules, and error handling guidance.
-2. Read the image style guide at the path provided. Extract:
-   - Provider (google-gemini or openai-gpt-image)
+1. Read `.content-ops/config.md` and parse the `image_generation` section. All paths and settings come from here — never use hardcoded defaults without checking config first.
+2. Load rules from the `content-image-style` skill — this provides the API patterns, prompt construction rules, file naming conventions, alt text rules, and error handling guidance.
+3. Read the image style guide at the `image_generation.guidelines` path. Extract:
    - Visual style description and keywords
    - Color palette (hex codes and labels, if set)
    - Base prompt template
@@ -55,7 +58,11 @@ Run the pre-flight checks from the `content-image-style` skill:
 - Is `image_generation.enabled: true`? If not, stop and return "skipped: image generation is disabled."
 - Is the content type in `skip_types`? If yes, stop and return "skipped: content type excluded."
 - Read the article and count its words. Is the word count at or above `min_word_count`? If not, stop and return "skipped: article below minimum word count ([N] words)."
-- Is the API key environment variable set? Check by running `echo ${GEMINI_API_KEY}` or `echo ${OPENAI_API_KEY}`. If empty, stop with: "Error: [API_KEY_VAR] is not set. Export it before running write-content."
+- Is the required API key set? Check **without printing the value** — use a length test:
+  ```bash
+  test -n "${GEMINI_API_KEY}" && echo "set" || echo "missing"
+  ```
+  (or `OPENAI_API_KEY` for OpenAI). **Never echo, log, or output the API key itself.** If missing, stop with: "Error: [API_KEY_VAR] is not set. Export it before running write-content."
 
 ### Step 3: Analyze the article
 
@@ -122,7 +129,7 @@ For each successfully generated image, write SEO-friendly alt text following the
 Format each image as a Markdown image tag using the placement and file path:
 
 - **Hero:** `![{alt text}](/{output path}/hero.webp)` — placed after frontmatter, before first paragraph
-- **Inline:** `![{alt text}](/{output path}/section-{n}.webp)` — placed before its target H2
+- **Inline:** `![{alt text}](/{output path}/{section-slug}.webp)` — placed before its target H2. The filename is derived by slugifying the section heading (e.g., `## How Consensus Works` → `how-consensus-works.webp`).
 
 Use the leading `/` for root-relative paths. Do not use relative `../` paths.
 

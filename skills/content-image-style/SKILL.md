@@ -13,9 +13,10 @@ This skill provides the image generation rules for content creation. It is auto-
 
 Config is pre-loaded at session start by the SessionStart hook. Use these config values:
 
-- `image_generation.enabled`, `image_generation.provider`, `image_generation.guidelines`
+- `image_generation.enabled`, `image_generation.provider`, `image_generation.model`, `image_generation.guidelines`
 - `image_generation.output_path`, `image_generation.hero_dimensions`, `image_generation.inline_dimensions`
 - `image_generation.placement`, `image_generation.min_word_count`, `image_generation.skip_types`
+- `image_generation.max_inline_images` (optional — caps inline images per article)
 
 For the full image style guide, read the file at `image_generation.guidelines` (e.g., `docs/image-style-guide.md`). Below is the condensed reference for quick access.
 
@@ -26,7 +27,11 @@ Before generating any images, verify:
 1. `image_generation.enabled` is `true` — if not, skip entirely and note "image generation is disabled"
 2. The content type is not in `image_generation.skip_types` — if it is, skip entirely
 3. The article word count is at or above `image_generation.min_word_count` — if below, skip entirely
-4. The required API key environment variable is set — if not, stop with a clear error:
+4. The required API key environment variable is set — check **without printing the value**:
+   ```bash
+   test -n "${GEMINI_API_KEY}" && echo "set" || echo "missing"
+   ```
+   **Never echo, log, or include the API key in any output.** If missing, stop with a clear error:
    - Gemini: `GEMINI_API_KEY`
    - OpenAI: `OPENAI_API_KEY`
 
@@ -48,17 +53,18 @@ When `placement` is `ai-driven`:
 - The section is the closing "next steps" or "related reading" section
 - The section is very short (under 80 words)
 
-**Default:** fewer, better-placed images beat one-per-section coverage. Aim for 1 hero + 1–2 inline images per article, not one per heading.
+**Default approach:** fewer, better-placed images beat one-per-section coverage. If `image_generation.max_inline_images` is set in config, respect that cap. Otherwise, use editorial judgment — typically 1–3 inline images for a standard article. Always defer to the image style guide at `image_generation.guidelines` for project-specific placement preferences.
 
 ## API Call Patterns
 
 ### Google Gemini (Nano Banana)
 
-Use the Gemini API with the `imagen-3.0-generate-002` model (or `gemini-2.0-flash-preview-image-generation` for inline generation). Make API calls via Bash using curl:
+Use the model specified in `image_generation.model` from config. If not set, default to `imagen-3.0-generate-002`. Make API calls via Bash using curl:
 
 ```bash
+# MODEL comes from image_generation.model in config (default: imagen-3.0-generate-002)
 curl -s -X POST \
-  "https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=${GEMINI_API_KEY}" \
+  "https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:predict?key=${GEMINI_API_KEY}" \
   -H "Content-Type: application/json" \
   -d '{
     "instances": [{"prompt": "[your prompt here]"}],
@@ -80,7 +86,7 @@ curl -s -X POST \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer ${OPENAI_API_KEY}" \
   -d '{
-    "model": "gpt-image-1",
+    "model": "${MODEL}",  // from image_generation.model in config (default: gpt-image-1)
     "prompt": "[your prompt here]",
     "n": 1,
     "size": "1792x1024",
@@ -113,9 +119,11 @@ Keep prompts under 400 characters. Avoid vague terms like "beautiful" or "amazin
 ```text
 Output root:     {image_generation.output_path}/articles/{article-slug}/
 Hero image:      hero.webp
-Inline images:   section-1.webp, section-2.webp, ...
+Inline images:   {section-heading-slug}.webp (e.g., "## How Consensus Works" → how-consensus-works.webp)
 Fallback format: .png (if API does not support webp)
 ```
+
+Derive inline filenames by slugifying the H2 heading: lowercase, replace spaces and special characters with hyphens, collapse consecutive hyphens, trim leading/trailing hyphens. This makes filenames meaningful and aligned with the section content.
 
 Write image bytes by piping the base64-decoded output via Bash:
 ```bash
@@ -149,7 +157,7 @@ Insert images as standard Markdown:
 
 **Inline section images** — insert immediately before the `## Section Title` heading they illustrate:
 ```markdown
-![{alt text}]({output_path}/articles/{slug}/section-1.webp)
+![{alt text}]({output_path}/articles/{slug}/{section-heading-slug}.webp)
 
 ## Section Title
 ```

@@ -191,13 +191,9 @@ Use the image-generator agent.
 
 Article path: [file path from Phase 5]
 Article slug: [slug from Phase 5]
-Content type: article
-Image output path: [image_generation.output_path from config]/articles/[slug]/
-Image guidelines: [image_generation.guidelines from config]
-Hero dimensions: [image_generation.hero_dimensions from config, e.g. 1200x630]
-Inline dimensions: [image_generation.inline_dimensions from config, e.g. 800x450]
-Placement mode: [image_generation.placement from config]
 ```
+
+The agent reads all other settings (provider, model, guidelines, output path, dimensions, placement mode, min word count, skip types) directly from `image_generation` in `.content-ops/config.md`.
 
 After the agent returns:
 
