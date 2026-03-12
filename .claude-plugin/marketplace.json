@@ -1,12 +1,12 @@
 {
-  "name": "content-ops",
+  "name": "content-stack",
   "owner": {
     "name": "pcamarajr"
   },
   "plugins": [
     {
       "name": "content-ops",
-      "source": "./"
+      "source": "./content-ops"
     }
   ]
 }
