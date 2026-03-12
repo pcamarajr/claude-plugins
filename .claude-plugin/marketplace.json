@@ -1,0 +1,12 @@
+{
+  "name": "content-ops",
+  "owner": {
+    "name": "pcamarajr"
+  },
+  "plugins": [
+    {
+      "name": "content-ops",
+      "source": "./"
+    }
+  ]
+}
