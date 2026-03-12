@@ -10,6 +10,8 @@ A Claude Code plugin for content creation and management on static site blogs. H
 
 No API keys or external services required for the knowledge layer — it uses file-based content index and research cache.
 
+**Image generation** is optional. When enabled via `/init images`, it uses the Google Gemini API (Nano Banana) or OpenAI GPT Image to generate article images. Requires a `GEMINI_API_KEY` or `OPENAI_API_KEY` environment variable.
+
 ## Installation
 
 1. Copy the `content-ops/` directory into your project's `.claude/plugins/` folder:
@@ -61,6 +63,7 @@ See `config.example.md` for the full schema and all available fields.
 | `research_cache_path` | Path to research cache directory (default `.content-ops/research-cache`) |
 | `linking_max_candidates` | Max candidates before LLM ranking (optional, default 50) |
 | `linking_max_links` | Max links per article (optional, default 10) |
+| `image_generation` | Image generation config block (optional — run `/init images` to configure) |
 
 ### .content-ops/ Layout
 
@@ -95,7 +98,7 @@ The `/init` skill is the recommended way to initialize content-ops in your proje
 - `/init` — Shows the setup status dashboard
 - `/init [round]` — Runs a specific setup step
 
-**Rounds (in order):** `project` → `content-types` → `style` → `strategy` → `infra`
+**Rounds (in order):** `project` → `content-types` → `style` → `strategy` → `infra` → `images` _(optional)_
 
 Each round reads from `skills/init/rounds/<round>.md` (relative to plugin root).
 
@@ -108,6 +111,7 @@ Each round reads from `skills/init/rounds/<round>.md` (relative to plugin root).
 - style: reference_content + guidelines
 - strategy: content_strategy file exists
 - infra: backlog and translation tracker exist
+- images: image_generation section in config + guidelines file exists
 
 Config is read from `.content-ops/config.md`.
 
@@ -135,6 +139,7 @@ These skills are loaded automatically by other skills and agents. They are not i
 | ---- | ----- |
 | `content-inventory` | Current snapshot of all articles and glossary entries per language |
 | `content-style` | Voice, tone, structure, and linking rules for content creation |
+| `content-image-style` | Image generation rules: prompt construction, API patterns, file naming, alt text conventions |
 | `internal-linking` | Bidirectional linking conventions and rules |
 | `update-trackers` | Logic for updating content backlog and translation tracker |
 
@@ -145,6 +150,7 @@ These skills are loaded automatically by other skills and agents. They are not i
 | `content-researcher` | Fact verification with file-based research cache (avoids re-verifying known facts) |
 | `content-linker` | Bidirectional linking via content-index.json (reads index, edits only matched files) |
 | `style-enforcer` | Style review against configurable guidelines and reference content |
+| `image-generator` | AI image generation — builds prompts from article content and style guide, calls API, saves files |
 
 ## File-Based Knowledge Layer
 
@@ -177,9 +183,11 @@ content-ops/
 ├── agents/
 │   ├── content-researcher.md
 │   ├── content-linker.md
-│   └── style-enforcer.md
+│   ├── style-enforcer.md
+│   └── image-generator.md
 └── skills/
     ├── init/                    ← Setup wizard
+    ├── content-image-style/     ← Image generation rules (auto-loaded)
     ├── content-inventory/
     ├── content-style/
     ├── fact-check/
