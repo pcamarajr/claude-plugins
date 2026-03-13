@@ -7,6 +7,26 @@
     {
       "name": "content-ops",
       "source": "./content-ops"
+    },
+    {
+      "name": "astro-lsp",
+      "description": "Astro language server for code intelligence, diagnostics, and formatting in .astro files",
+      "version": "1.0.0",
+      "author": {
+        "name": "pcamarajr"
+      },
+      "source": "./astro-lsp",
+      "category": "development",
+      "strict": false,
+      "lspServers": {
+        "astro": {
+          "command": "astro-ls",
+          "args": ["--stdio"],
+          "extensionToLanguage": {
+            ".astro": "astro"
+          }
+        }
+      }
     }
   ]
 }

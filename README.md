@@ -6,7 +6,7 @@ A curated collection of Claude Code plugins by [@pcamarajr](https://github.com/p
 
 Add this marketplace to your Claude Code project:
 
-```
+```bash
 /plugin marketplace add pcamarajr/content-stack
 ```
 
@@ -22,8 +22,18 @@ Content creation and management plugin for static site blogs. Handles writing, t
 
 To install this plugin:
 
-```
+```bash
 /plugin install content-ops@content-stack
+```
+
+### [astro-lsp](./astro-lsp/README.md)
+
+Astro language server for Claude Code. Provides code intelligence, diagnostics, and formatting for `.astro` files. Automatically installs the language server binary at session start — works out of the box in remote and cloud environments.
+
+To install this plugin:
+
+```bash
+/plugin install astro-lsp@content-stack
 ```
 
 ## License

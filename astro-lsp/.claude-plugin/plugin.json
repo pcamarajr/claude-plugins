@@ -1,0 +1,36 @@
+{
+  "name": "astro-lsp",
+  "description": "Astro language server for code intelligence, diagnostics, and formatting in .astro files",
+  "version": "1.0.0",
+  "author": {
+    "name": "pcamarajr"
+  },
+  "repository": "https://github.com/pcamarajr/content-stack",
+  "license": "MIT",
+  "keywords": [
+    "astro",
+    "lsp",
+    "language-server",
+    "code-intelligence",
+    "diagnostics"
+  ],
+  "lspServers": [
+    {
+      "name": "astro-ls",
+      "command": "astro-ls",
+      "args": ["--stdio"]
+    }
+  ],
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "which astro-ls > /dev/null 2>&1 || npm install -g @astrojs/language-server"
+          }
+        ]
+      }
+    ]
+  }
+}
