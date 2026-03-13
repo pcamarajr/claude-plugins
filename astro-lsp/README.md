@@ -8,17 +8,19 @@ Astro language server (`@astrojs/language-server`) for Claude Code, providing co
 
 ## Installation
 
+First, add the content-stack marketplace to your project:
+
+```bash
+/plugin marketplace add pcamarajr/content-stack
 ```
+
+Then install the plugin:
+
+```bash
 /plugin install astro-lsp@content-stack
 ```
 
 The plugin will automatically install `@astrojs/language-server` at session start if it is not already available on your system. This means it works out of the box in remote environments such as GitHub Codespaces and other cloud development setups — no manual setup required.
-
-If you prefer to install it yourself:
-
-```bash
-npm install -g @astrojs/language-server
-```
 
 ## Capabilities
 
@@ -27,13 +29,6 @@ npm install -g @astrojs/language-server
 - Find references and hover documentation
 - TypeScript/JavaScript intellisense inside frontmatter and script blocks
 - CSS/SCSS/Less support inside `<style>` blocks
-- Prettier formatting via `prettier-plugin-astro` (optional)
-
-For Prettier formatting support, also install:
-
-```bash
-npm install -g prettier prettier-plugin-astro
-```
 
 ## More Information
 
