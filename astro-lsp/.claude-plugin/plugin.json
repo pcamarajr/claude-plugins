@@ -1,0 +1,17 @@
+{
+  "name": "astro-lsp",
+  "description": "Astro language server for code intelligence, diagnostics, and formatting in .astro files",
+  "version": "1.0.0",
+  "author": {
+    "name": "pcamarajr"
+  },
+  "repository": "https://github.com/pcamarajr/content-stack",
+  "license": "MIT",
+  "keywords": [
+    "astro",
+    "lsp",
+    "language-server",
+    "code-intelligence",
+    "diagnostics"
+  ]
+}
