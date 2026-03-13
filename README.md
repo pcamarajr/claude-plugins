@@ -12,6 +12,16 @@ Add this marketplace to your Claude Code project:
 
 ## Available Plugins
 
+### [astro-lsp](./astro-lsp/README.md)
+
+Astro language server for Claude Code. Provides code intelligence, diagnostics, and formatting for `.astro` files. Automatically installs the language server binary at session start — works out of the box in remote and cloud environments.
+
+To install this plugin:
+
+```
+/plugin install astro-lsp@content-stack
+```
+
 ### [content-ops](./content-ops/README.md)
 
 Content creation and management plugin for static site blogs. Handles writing, translation, research, internal linking, style review, and knowledge indexing.

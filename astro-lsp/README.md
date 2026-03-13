@@ -8,16 +8,16 @@ Astro language server (`@astrojs/language-server`) for Claude Code, providing co
 
 ## Installation
 
-Install the Astro language server globally via npm:
+```
+/plugin install astro-lsp@content-stack
+```
+
+The plugin will automatically install `@astrojs/language-server` at session start if it is not already available on your system. This means it works out of the box in remote environments such as GitHub Codespaces and other cloud development setups — no manual setup required.
+
+If you prefer to install it yourself:
 
 ```bash
 npm install -g @astrojs/language-server
-```
-
-Or with yarn:
-
-```bash
-yarn global add @astrojs/language-server
 ```
 
 ## Capabilities
