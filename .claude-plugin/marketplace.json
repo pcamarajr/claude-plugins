@@ -6,7 +6,13 @@
   "plugins": [
     {
       "name": "content-ops",
-      "source": "./content-ops"
+      "description": "Content creation and management plugin for static site blogs. Handles writing, translation, research, linking, style review, and knowledge indexing.",
+      "version": "0.1.0",
+      "author": {
+        "name": "pcamarajr"
+      },
+      "source": "./content-ops",
+      "category": "content"
     },
     {
       "name": "astro-builder",
@@ -21,7 +27,7 @@
     {
       "name": "astro-lsp",
       "description": "Astro language server for code intelligence, diagnostics, and formatting in .astro files",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "author": {
         "name": "pcamarajr"
       },
