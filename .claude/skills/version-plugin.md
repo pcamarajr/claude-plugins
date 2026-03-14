@@ -31,6 +31,7 @@ New plugins always start at `1.0.0`.
 ### 1.3 Collect metadata
 
 If not already clear from context, ask for:
+
 - **name** — lowercase, hyphenated (e.g. `my-plugin`)
 - **description** — one sentence, what it does and who it's for
 - **category** — one of: `content`, `development`, `productivity`, `design`
@@ -57,7 +58,7 @@ Add a new entry to the `plugins` array:
 
 Add a new plugin section following the existing pattern:
 
-```markdown
+````markdown
 ### [plugin-name](./plugin-name/README.md)
 
 <description>
@@ -70,7 +71,7 @@ To install this plugin:
 ```bash
 /plugin install plugin-name@content-stack
 ```
-```
+````
 
 Place it in alphabetical order among existing plugin sections.
 
@@ -78,7 +79,7 @@ Place it in alphabetical order among existing plugin sections.
 
 If the plugin has no README or a placeholder, generate a minimal README:
 
-```markdown
+````markdown
 # <plugin-name>
 
 <description>
@@ -98,7 +99,7 @@ Part of the [content-stack](https://github.com/pcamarajr/content-stack) marketpl
 ## Skills
 
 | Skill | Description |
-|-------|-------------|
+| ------- | ------------- |
 | `/<skill>` | ... |
 
 ---
@@ -106,11 +107,12 @@ Part of the [content-stack](https://github.com/pcamarajr/content-stack) marketpl
 ## License
 
 MIT
-```
+````
 
 ### 1.7 Confirm and summarize
 
 Show the user what was changed:
+
 - Entry added to `marketplace.json`
 - Section added to root `README.md`
 - Plugin `README.md` created or updated (if applicable)
@@ -132,7 +134,7 @@ Read `.claude-plugin/marketplace.json` and find the plugin's current `version`.
 Ask the user to describe what changed, then apply these rules:
 
 | Change type | Bump |
-|---|---|
+| --- | --- |
 | Bug fix, wording correction, documentation update, skill text tweak | **patch** (x.x.N) |
 | New skill, new agent, new hook, new command, new optional feature | **minor** (x.N.0) |
 | Breaking config change, removed/renamed skill or agent, architecture overhaul | **major** (N.0.0) |
@@ -173,5 +175,5 @@ Show the user exactly what was changed.
 
 - Never downgrade a version
 - Never skip semver components (e.g. `1.0` is not valid — use `1.0.0`)
-- `content-ops` in `marketplace.json` is currently missing a `version` field — if updating it, add the field starting at `1.0.0` unless a later version is warranted
+- Version lives exclusively in `marketplace.json` — do not add or update `version` in `plugin.json`
 - Always read the current state of `marketplace.json` before making changes

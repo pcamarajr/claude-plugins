@@ -37,20 +37,6 @@ Every plugin entry must have: `name`, `version` (semver), `description`, `author
 
 ---
 
-## Plugin versioning
-
-Version is managed exclusively in `marketplace.json` — do **not** add a `version` field to `plugin.json`. The `plugin.json` manifest only requires `name`; all other fields are optional metadata.
-
-Use the `/version-plugin` skill whenever you create or update a plugin.
-
-**Semver rules:**
-
-- `patch` (x.x.N) — bug fixes, wording tweaks, documentation updates, skill corrections
-- `minor` (x.N.0) — new skills, new agents, new hooks, new commands, new optional features
-- `major` (N.0.0) — breaking changes to config format, removed skills/agents, renamed commands, architecture overhaul
-
-New plugins always start at `1.0.0`.
-
 ---
 
 ## Adding a new plugin
@@ -65,7 +51,6 @@ New plugins always start at `1.0.0`.
 - Plugin names are lowercase, hyphenated (e.g. `astro-builder`, `content-ops`)
 - Skills use `SKILL.md` as the filename inside `skills/<skill-name>/`
 - Agents use `<agent-name>.md` inside `agents/`
-- Do not commit `.content-ops/` runtime data or local config files
 
 ---
 
