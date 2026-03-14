@@ -36,6 +36,20 @@ To install this plugin:
 /plugin install astro-lsp@content-stack
 ```
 
+### [astro-builder](./astro-builder/README.md)
+
+Astro 6 static content site builder. Enforces the page-views pattern, i18n via `Astro.currentLocale`, content collections with `glob()` loaders, Biome, and pnpm. Designed for markdown-based content sites: blogs, education platforms, documentation, and news sites.
+
+**Agents:** astro-architect, astro-builder
+
+**Skills:** init, new-page, new-content-type, translate, audit
+
+To install this plugin:
+
+```bash
+/plugin install astro-builder@content-stack
+```
+
 ## License
 
 MIT
